@@ -1,6 +1,12 @@
+"""
+Module handles restaurants browsing functionalities
+"""
+# Unit tests for RestaurantBrowsing class
+import unittest
 class RestaurantBrowsing:
     """
-    A class for browsing restaurants in a database based on various criteria like cuisine type, location, and rating.
+    A class for browsing restaurants in a database based on
+    various criteria like cuisine type, location, and rating.
     
     Attributes:
         database (RestaurantDatabase): An instance of RestaurantDatabase that holds restaurant data.
@@ -25,7 +31,7 @@ class RestaurantBrowsing:
         Returns:
             list: A list of restaurants that match the given cuisine type.
         """
-        return [restaurant for restaurant in self.database.get_restaurants() 
+        return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['cuisine'].lower() == cuisine_type.lower()]
 
     def search_by_location(self, location):
@@ -38,7 +44,7 @@ class RestaurantBrowsing:
         Returns:
             list: A list of restaurants that are located in the specified area.
         """
-        return [restaurant for restaurant in self.database.get_restaurants() 
+        return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['location'].lower() == location.lower()]
 
     def search_by_rating(self, min_rating):
@@ -49,9 +55,10 @@ class RestaurantBrowsing:
             min_rating (float): The minimum acceptable rating to filter by (e.g., 4.0).
         
         Returns:
-            list: A list of restaurants that have a rating greater than or equal to the specified rating.
+            list: A list of restaurants that have a rating greater than
+            or equal to the specified rating.
         """
-        return [restaurant for restaurant in self.database.get_restaurants() 
+        return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['rating'] >= min_rating]
 
     def search_by_filters(self, cuisine_type=None, location=None, min_rating=None):
@@ -69,15 +76,15 @@ class RestaurantBrowsing:
         results = self.database.get_restaurants()  # Start with all restaurants
 
         if cuisine_type:
-            results = [restaurant for restaurant in results 
+            results = [restaurant for restaurant in results
                        if restaurant['cuisine'].lower() == cuisine_type.lower()]
 
         if location:
-            results = [restaurant for restaurant in results 
+            results = [restaurant for restaurant in results
                        if restaurant['location'].lower() == location.lower()]
 
         if min_rating:
-            results = [restaurant for restaurant in results 
+            results = [restaurant for restaurant in results
                        if restaurant['rating'] >= min_rating]
 
         return results
@@ -88,8 +95,9 @@ class RestaurantDatabase:
     A simulated in-memory database that stores restaurant information.
     
     Attributes:
-        restaurants (list): A list of dictionaries, where each dictionary represents a restaurant with
-                            fields like name, cuisine, location, rating, price range, and delivery status.
+        restaurants (list): 
+            A list of dictionaries, where each dictionary represents a restaurant with
+            fields like name, cuisine, location, rating, price range, and delivery status.
     """
 
     def __init__(self):
@@ -97,15 +105,15 @@ class RestaurantDatabase:
         Initialize the RestaurantDatabase with a predefined set of restaurant data.
         """
         self.restaurants = [
-            {"name": "Italian Bistro", "cuisine": "Italian", "location": "Downtown", "rating": 4.5, 
+            {"name": "Italian Bistro", "cuisine": "Italian", "location": "Downtown", "rating": 4.5,
              "price_range": "$$", "delivery": True},
-            {"name": "Sushi House", "cuisine": "Japanese", "location": "Midtown", "rating": 4.8, 
+            {"name": "Sushi House", "cuisine": "Japanese", "location": "Midtown", "rating": 4.8,
              "price_range": "$$$", "delivery": False},
-            {"name": "Burger King", "cuisine": "Fast Food", "location": "Uptown", "rating": 4.0, 
+            {"name": "Burger King", "cuisine": "Fast Food", "location": "Uptown", "rating": 4.0,
              "price_range": "$", "delivery": True},
-            {"name": "Taco Town", "cuisine": "Mexican", "location": "Downtown", "rating": 4.2, 
+            {"name": "Taco Town", "cuisine": "Mexican", "location": "Downtown", "rating": 4.2,
              "price_range": "$", "delivery": True},
-            {"name": "Pizza Palace", "cuisine": "Italian", "location": "Uptown", "rating": 3.9, 
+            {"name": "Pizza Palace", "cuisine": "Italian", "location": "Uptown", "rating": 3.9,
              "price_range": "$$", "delivery": True}
         ]
 
@@ -121,7 +129,8 @@ class RestaurantDatabase:
 
 class RestaurantSearch:
     """
-    A class that interfaces with RestaurantBrowsing to perform restaurant searches based on user input.
+    A class that interfaces with RestaurantBrowsing to perform restaurant searches
+    based on user input.
     
     Attributes:
         browsing (RestaurantBrowsing): An instance of RestaurantBrowsing used to perform searches.
@@ -148,12 +157,12 @@ class RestaurantSearch:
         Returns:
             list: A list of restaurants that match the provided search criteria.
         """
-        results = self.browsing.search_by_filters(cuisine_type=cuisine, location=location, min_rating=rating)
+        results = self.browsing.search_by_filters(
+            cuisine_type=cuisine,
+            location=location,
+            min_rating=rating)
         return results
 
-
-# Unit tests for RestaurantBrowsing class
-import unittest
 
 class TestRestaurantBrowsing(unittest.TestCase):
     """
@@ -173,7 +182,11 @@ class TestRestaurantBrowsing(unittest.TestCase):
         """
         results = self.browsing.search_by_cuisine("Italian")
         self.assertEqual(len(results), 2)  # There should be 2 Italian restaurants
-        self.assertTrue(all([restaurant['cuisine'] == "Italian" for restaurant in results]))  # Check if all returned restaurants are Italian
+        self.assertTrue(
+            all(
+                restaurant['cuisine'] == "Italian" for restaurant in results
+                )
+        )  # Check if all returned restaurants are Italian
 
     def test_search_by_location(self):
         """
@@ -181,7 +194,11 @@ class TestRestaurantBrowsing(unittest.TestCase):
         """
         results = self.browsing.search_by_location("Downtown")
         self.assertEqual(len(results), 2)  # There should be 2 restaurants located Downtown
-        self.assertTrue(all([restaurant['location'] == "Downtown" for restaurant in results]))  # Check if all returned restaurants are in Downtown
+        self.assertTrue(
+            all(
+                restaurant['location'] == "Downtown" for restaurant in results
+            )
+        )  # Check if all returned restaurants are in Downtown
 
     def test_search_by_rating(self):
         """
@@ -189,15 +206,27 @@ class TestRestaurantBrowsing(unittest.TestCase):
         """
         results = self.browsing.search_by_rating(4.0)
         self.assertEqual(len(results), 4)  # There should be 4 restaurants with a rating >= 4.0
-        self.assertTrue(all([restaurant['rating'] >= 4.0 for restaurant in results]))  # Check if all returned restaurants have a rating >= 4.0
+        self.assertTrue(
+            all(
+                restaurant['rating'] >= 4.0 for restaurant in results
+            )
+        )  # Check if all returned restaurants have a rating >= 4.0
 
     def test_search_by_filters(self):
         """
-        Test searching for restaurants by multiple filters (cuisine type, location, and minimum rating).
+        Test searching for restaurants by multiple filters
+        (cuisine type, location, and minimum rating).
         """
-        results = self.browsing.search_by_filters(cuisine_type="Italian", location="Downtown", min_rating=4.0)
+        results = self.browsing.search_by_filters(
+            cuisine_type="Italian",
+            location="Downtown",
+            min_rating=4.0
+        )
         self.assertEqual(len(results), 1)  # Only one restaurant should match all the filters
-        self.assertEqual(results[0]['name'], "Italian Bistro")  # The result should be "Italian Bistro"
+        self.assertEqual(
+            results[0]['name'],
+            "Italian Bistro"
+        )  # The result should be "Italian Bistro"
 
 
 if __name__ == '__main__':
