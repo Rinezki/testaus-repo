@@ -1,4 +1,10 @@
+""" Import unit tests """
+
+import unittest
+
 class UserRegistration:
+    """ User registration class """
+
     def __init__(self):
         """
         Initializes the UserRegistration class with an empty dictionary to store user data.
@@ -43,10 +49,10 @@ class UserRegistration:
         if password != confirm_password:
             return {"success": False, "error": "Passwords do not match"}
 
-        # If password isn't strong, return an error.  
+        # If password isn't strong, return an error.
         if not self.is_strong_password(password):
             return {"success": False, "error": "Password is not strong enough"}
-        
+
         # If the email is already registered, return an error.
         if email in self.users:
             return {"success": False, "error": "Email already registered"}
@@ -81,12 +87,15 @@ class UserRegistration:
         Returns:
             bool: True if the password is strong, False otherwise.
         """
-        return len(password) >= 8 and any(c.isdigit() for c in password) and any(c.isalpha() for c in password)
+        return all((len(password) >= 8,
+            any(c.isdigit() for c in password),
+            any(c.isalpha() for c in password),))
 
-# Unit tests for UserRegistration class
-import unittest
+        # return len(password) >= 8 and
+        # any(c.isdigit() for c in password) and any(c.isalpha() for c in password)
 
 class TestUserRegistration(unittest.TestCase):
+    """ Tests for UserRegistration class """
 
     def setUp(self):
         """
