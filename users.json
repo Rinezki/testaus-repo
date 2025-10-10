@@ -2,5 +2,9 @@
     "testi@gmail.com": {
         "password": "S123!gmpl",
         "confirmed": false
+    },
+    "diudiu@gmail.com": {
+        "password": "SSGb47DMG!",
+        "confirmed": false
     }
 }
