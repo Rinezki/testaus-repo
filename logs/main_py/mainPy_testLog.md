@@ -19,7 +19,7 @@ ___
 
 ## Pylint outcome at beginning:
 
-![pylint_terminal_start](pic\PyLint_Start.png)
+![pylint_terminal_start](pic/PyLint_Start.png)
 
 ___
 
