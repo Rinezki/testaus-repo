@@ -1,14 +1,20 @@
+""" import unit tests, date and mock """
+
 import unittest
+
 from unittest import mock  # Import the mock module to simulate payment gateway responses.
 
 # PaymentProcessing Class
 class PaymentProcessing:
     """
-    The PaymentProcessing class handles validation and processing of payments using different payment methods.
+    The PaymentProcessing class handles validation 
+    and processing of payments using different payment methods.
     
     Attributes:
-        available_gateways (list): A list of supported payment gateways such as 'credit_card' and 'paypal'.
+        available_gateways (list): A list of supported payment 
+        gateways such as 'credit_card' and 'paypal'.
     """
+
     def __init__(self):
         """
         Initializes the PaymentProcessing class with available payment gateways.
@@ -20,14 +26,18 @@ class PaymentProcessing:
         Validates the selected payment method and its associated details.
         
         Args:
-            payment_method (str): The selected payment method (e.g., 'credit_card', 'paypal').
-            payment_details (dict): The details required for the payment method (e.g., card number, expiry date).
+            payment_method (str): The selected payment method
+            (e.g., 'credit_card', 'paypal').
+            payment_details (dict): The details required 
+            for the payment method (e.g., card number, expiry date).
         
         Returns:
-            bool: True if the payment method and details are valid, otherwise raises ValueError.
+            bool: True if the payment method and details are valid, 
+            otherwise raises ValueError.
         
         Raises:
-            ValueError: If the payment method is not supported or if the payment details are invalid.
+            ValueError: If the payment method is not supported or 
+            if the payment details are invalid.
         """
         # Check if the payment method is supported.
         if payment_method not in self.available_gateways:
@@ -38,8 +48,7 @@ class PaymentProcessing:
             if not self.validate_credit_card(payment_details):
                 raise ValueError("Invalid credit card details")
 
-        # Validation passed.
-        return True
+        return True # Validation passed.
 
     def validate_credit_card(self, details):
         """
@@ -56,7 +65,7 @@ class PaymentProcessing:
         cvv = details.get("cvv", "")
 
         # Basic validation: Check if the card number is 16 digits and CVV is 3 digits.
-        if len(card_number) != 16 or len(cvv) != 3:
+        if len(card_number) != 16 or len(cvv) != 3 or expiry_date == "":
             return False
 
         # More advanced validations like the Luhn Algorithm for card number can be added here.
@@ -64,7 +73,8 @@ class PaymentProcessing:
 
     def process_payment(self, order, payment_method, payment_details):
         """
-        Processes the payment for an order, validating the payment method and interacting with the payment gateway.
+        Processes the payment for an order, validating 
+        the payment method and interacting with the payment gateway.
         
         Args:
             order (dict): The order details, including total amount.
@@ -77,17 +87,20 @@ class PaymentProcessing:
         try:
             # Validate the payment method and details.
             self.validate_payment_method(payment_method, payment_details)
-            
+
             # Simulate interaction with the payment gateway.
-            payment_response = self.mock_payment_gateway(payment_method, payment_details, order["total_amount"])
+            payment_response = self.mock_payment_gateway(
+                payment_method,
+                payment_details,
+                order["total_amount"])
 
             # Return the appropriate message based on the payment gateway's response.
             if payment_response["status"] == "success":
                 return "Payment successful, Order confirmed"
-            else:
-                return "Payment failed, please try again"
 
-        except Exception as e:
+            return "Payment failed, please try again"
+
+        except ValueError as e:
             # Catch and return any validation or processing errors.
             return f"Error: {str(e)}"
 
@@ -104,7 +117,7 @@ class PaymentProcessing:
             dict: A mock response from the payment gateway, indicating success or failure.
         """
         # Simulate card decline for a specific card number.
-        if method == "credit_card" and details["card_number"] == "1111222233334444":
+        if method == "credit_card" and details["card_number"] == "1111222233334444" and amount >= 0:
             return {"status": "failure", "message": "Card declined"}
 
         # Mock a successful transaction.
@@ -114,7 +127,8 @@ class PaymentProcessing:
 # Unit tests for PaymentProcessing class
 class TestPaymentProcessing(unittest.TestCase):
     """
-    Unit tests for the PaymentProcessing class to ensure payment validation and processing work correctly.
+    Unit tests for the PaymentProcessing class to ensure 
+    payment validation and processing work correctly.
     """
     def setUp(self):
         """
@@ -124,7 +138,8 @@ class TestPaymentProcessing(unittest.TestCase):
 
     def test_validate_payment_method_success(self):
         """
-        Test case for successful validation of a valid payment method ('credit_card') with valid details.
+        Test case for successful validation of a valid payment method 
+        ('credit_card') with valid details.
         """
         payment_details = {"card_number": "1234567812345678", "expiry_date": "12/25", "cvv": "123"}
         result = self.payment_processing.validate_payment_method("credit_card", payment_details)
@@ -132,44 +147,58 @@ class TestPaymentProcessing(unittest.TestCase):
 
     def test_validate_payment_method_invalid_gateway(self):
         """
-        Test case for validation failure due to an unsupported payment method ('bitcoin').
+        Test case for validation failure due to an unsupported 
+        payment method ('bitcoin').
         """
         payment_details = {"card_number": "1234567812345678", "expiry_date": "12/25", "cvv": "123"}
         with self.assertRaises(ValueError) as context:
             self.payment_processing.validate_payment_method("bitcoin", payment_details)
+
         self.assertEqual(str(context.exception), "Invalid payment method")
 
     def test_validate_credit_card_invalid_details(self):
         """
-        Test case for validation failure due to invalid credit card details (invalid card number and CVV).
+        Test case for validation failure due to invalid credit card details 
+        (invalid card number and CVV).
         """
-        payment_details = {"card_number": "1234", "expiry_date": "12/25", "cvv": "12"}  # Invalid card number and CVV.
+        # Invalid card number and CVV.
+        payment_details = {"card_number": "1234", "expiry_date": "12/25", "cvv": "12"}
         result = self.payment_processing.validate_credit_card(payment_details)
         self.assertFalse(result)
 
     def test_process_payment_success(self):
         """
-        Test case for successful payment processing using the 'credit_card' method with valid details.
+        Test case for successful payment processing using the
+        'credit_card' method with valid details.
         """
         order = {"total_amount": 100.00}
         payment_details = {"card_number": "1234567812345678", "expiry_date": "12/25", "cvv": "123"}
 
         # Use mock to simulate a successful payment response from the gateway.
-        with mock.patch.object(self.payment_processing, 'mock_payment_gateway', return_value={"status": "success"}):
+        with mock.patch.object(
+            self.payment_processing,
+            'mock_payment_gateway',
+            return_value={"status": "success"}):
             result = self.payment_processing.process_payment(order, "credit_card", payment_details)
-            self.assertEqual(result, "Payment successful, Order confirmed")
+
+        self.assertEqual(result, "Payment successful, Order confirmed")
 
     def test_process_payment_failure(self):
         """
         Test case for payment failure due to a declined credit card.
         """
         order = {"total_amount": 100.00}
-        payment_details = {"card_number": "1111222233334444", "expiry_date": "12/25", "cvv": "123"}  # Simulate a declined card.
+        # Simulate a declined card.
+        payment_details = {"card_number": "1111222233334444", "expiry_date": "12/25", "cvv": "123"}
 
         # Use mock to simulate a failed payment response from the gateway.
-        with mock.patch.object(self.payment_processing, 'mock_payment_gateway', return_value={"status": "failure"}):
+        with mock.patch.object(
+            self.payment_processing,
+            'mock_payment_gateway',
+            return_value={"status": "failure"}):
             result = self.payment_processing.process_payment(order, "credit_card", payment_details)
-            self.assertEqual(result, "Payment failed, please try again")
+
+        self.assertEqual(result, "Payment failed, please try again")
 
     def test_process_payment_invalid_method(self):
         """
