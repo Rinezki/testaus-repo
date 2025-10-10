@@ -13,8 +13,8 @@ import json
 import os
 
 from User_Registration import UserRegistration
-from Order_Placement import Cart, OrderPlacement, UserProfile, RestaurantMenu, PaymentMethod
-from Restaurant_Browsing import RestaurantDatabase, RestaurantBrowsing
+from order_placement import Cart, OrderPlacement, UserProfile, RestaurantMenu, PaymentMethod
+from restaurant_browsing import RestaurantDatabase, RestaurantBrowsing
 
 # Utility functions for user data storage
 USERS_FILE = "users.json"

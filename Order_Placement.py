@@ -225,7 +225,7 @@ class OrderPlacement:
 
 
 # PaymentMethod Class
-class PaymentMethod:
+class PaymentMethod: # pylint: disable=too-few-public-methods
     """
     Represents the method of payment for an order.
     """
@@ -245,7 +245,7 @@ class PaymentMethod:
 
 
 # UserProfile Class (for simulating the user's details)
-class UserProfile:
+class UserProfile: # pylint: disable=too-few-public-methods
     """
     Represents the user's profile, including delivery address.
     
@@ -263,7 +263,7 @@ class UserProfile:
 
 
 # RestaurantMenu Class (for simulating available menu items)
-class RestaurantMenu:
+class RestaurantMenu: # pylint: disable=too-few-public-methods
     """
     Represents the restaurant's menu, including available items.
     

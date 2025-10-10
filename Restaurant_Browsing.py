@@ -90,7 +90,7 @@ class RestaurantBrowsing:
         return results
 
 
-class RestaurantDatabase:
+class RestaurantDatabase: # pylint: disable=too-few-public-methods
     """
     A simulated in-memory database that stores restaurant information.
     
@@ -127,7 +127,7 @@ class RestaurantDatabase:
         return self.restaurants
 
 
-class RestaurantSearch:
+class RestaurantSearch: # pylint: disable=too-few-public-methods
     """
     A class that interfaces with RestaurantBrowsing to perform restaurant searches
     based on user input.
