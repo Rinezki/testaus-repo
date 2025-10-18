@@ -380,18 +380,30 @@ class CartViewPopup(tk.Toplevel):
     Defines CartViewPopup class.
     """
     def __init__(self, master, cart):
-        """
-        Initialize CartViewPopup
-        """
         super().__init__(master)
         self.title("Cart Items")
+        self.cart = cart
 
-        items = cart.view_cart()
+        self.refresh_cart_view()
+
+    def refresh_cart_view(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        items = self.cart.view_cart()
         if not items:
             tk.Label(self, text="Your cart is empty").pack(pady=20)
         else:
             for i in items:
-                tk.Label(self, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}").pack()
+                frame = tk.Frame(self)
+                frame.pack(pady=5, fill="x")
+                tk.Label(frame, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}", anchor="w").pack(side="left")
+                tk.Button(frame, text="Remove", command=lambda name=i['name']: self.remove_item(name)).pack(side="right", padx=10)
+
+    def remove_item(self, name):
+        msg = self.cart.remove_item(name)
+        messagebox.showinfo("Cart", msg)
+        self.refresh_cart_view()
 
 
 class CheckoutPopup(tk.Toplevel):
@@ -455,9 +467,9 @@ class CheckoutPopup(tk.Toplevel):
         if result["success"]:
             messagebox.showinfo(
                 "Order Confirmed",
-                f"Order ID: {result['order_id']}\nEstimatedDelivery: {
-                    result['estimated_delivery']}"
-                )
+                f"""Order ID: {result['order_id']}
+                Estimated Delivery: {result['estimated_delivery']}"""
+    )
             self.destroy()
         else:
             messagebox.showerror("Error", result["message"])
