@@ -15,6 +15,7 @@ import os
 from User_Registration import UserRegistration
 from Order_Placement import Cart, OrderPlacement, UserProfile, RestaurantMenu, PaymentMethod
 from Restaurant_Browsing import RestaurantDatabase, RestaurantBrowsing
+from item_price import Price
 
 # Utility functions for user data storage
 USERS_FILE = "users.json"
@@ -361,6 +362,12 @@ class AddItemPopup(tk.Toplevel):
         self.qty_entry.insert(0, "1")
         self.qty_entry.pack(pady=5)
 
+        tk.Label(self, text="Price: ").pack(pady=5)
+        self.price_label = tk.Label(self, text="")
+        self.price_label.pack(pady=5)
+        self.item_var.trace_add("write", lambda *args: self.update_price())
+        self.qty_entry.bind("<KeyRelease>", lambda event: self.update_price())
+
         tk.Button(self, text="Add to Cart", command=self.add_to_cart).pack(pady=10)
 
     def add_to_cart(self):
@@ -369,10 +376,35 @@ class AddItemPopup(tk.Toplevel):
         """
         item = self.item_var.get()
         qty = int(self.qty_entry.get())
-        price = 10.0  # Static price for simplicity
+        price = float(Price.get_price("menu.json", f"{item}"))
         msg = self.cart.add_item(item, price, qty)
         messagebox.showinfo("Cart", msg)
         self.destroy()
+
+    def calculate_price(self, item, qty):
+        """
+        Calculates total price
+        """
+        if Price.get_price("menu.json", f"{item}") is None:
+            return "NaN"
+
+        price = float(Price.get_price("menu.json", f"{item}"))
+        total = round(price * qty, 2)
+        return total
+
+    def update_price(self):
+        """
+        Updates price label when item or quantity changes
+        """
+        item = self.item_var.get()
+        try:
+            qty = int(self.qty_entry.get())
+        except ValueError:
+            qty = 0
+
+        price = self.calculate_price(item, qty)
+        self.price_label.config(text=f"{price} $")
+
 
 
 class CartViewPopup(tk.Toplevel):
@@ -425,7 +457,7 @@ class CheckoutPopup(tk.Toplevel):
         for item in order_data["items"]:
             tk.Label(
                 self, text=f"{item['name']} x{item['quantity']} = ${item['subtotal']:.2f}"
-                     ).pack()
+                    ).pack()
 
         total = order_data["total_info"]
         tk.Label(self, text=f"Subtotal: ${total['subtotal']:.2f}").pack()
