@@ -6,9 +6,5 @@
     "diudiu@gmail.com": {
         "password": "SSGb47DMG!",
         "confirmed": false
-    },
-    "user1@test.com": {
-        "password": "password1",
-        "confirmed": false
     }
 }

@@ -15,6 +15,7 @@ import os
 from User_Registration import UserRegistration
 from Order_Placement import Cart, OrderPlacement, UserProfile, RestaurantMenu, PaymentMethod
 from Restaurant_Browsing import RestaurantDatabase, RestaurantBrowsing
+from item_price import Price
 
 # Utility functions for user data storage
 USERS_FILE = "users.json"
@@ -361,6 +362,12 @@ class AddItemPopup(tk.Toplevel):
         self.qty_entry.insert(0, "1")
         self.qty_entry.pack(pady=5)
 
+        tk.Label(self, text="Price: ").pack(pady=5)
+        self.price_label = tk.Label(self, text="")
+        self.price_label.pack(pady=5)
+        self.item_var.trace_add("write", lambda *args: self.update_price())
+        self.qty_entry.bind("<KeyRelease>", lambda event: self.update_price())
+
         tk.Button(self, text="Add to Cart", command=self.add_to_cart).pack(pady=10)
 
     def add_to_cart(self):
@@ -369,10 +376,35 @@ class AddItemPopup(tk.Toplevel):
         """
         item = self.item_var.get()
         qty = int(self.qty_entry.get())
-        price = 10.0  # Static price for simplicity
+        price = float(Price.get_price("menu.json", f"{item}"))
         msg = self.cart.add_item(item, price, qty)
         messagebox.showinfo("Cart", msg)
         self.destroy()
+
+    def calculate_price(self, item, qty):
+        """
+        Calculates total price
+        """
+        if Price.get_price("menu.json", f"{item}") is None:
+            return "NaN"
+
+        price = float(Price.get_price("menu.json", f"{item}"))
+        total = round(price * qty, 2)
+        return total
+
+    def update_price(self):
+        """
+        Updates price label when item or quantity changes
+        """
+        item = self.item_var.get()
+        try:
+            qty = int(self.qty_entry.get())
+        except ValueError:
+            qty = 0
+
+        price = self.calculate_price(item, qty)
+        self.price_label.config(text=f"{price} $")
+
 
 
 class CartViewPopup(tk.Toplevel):
@@ -380,18 +412,30 @@ class CartViewPopup(tk.Toplevel):
     Defines CartViewPopup class.
     """
     def __init__(self, master, cart):
-        """
-        Initialize CartViewPopup
-        """
         super().__init__(master)
         self.title("Cart Items")
+        self.cart = cart
 
-        items = cart.view_cart()
+        self.refresh_cart_view()
+
+    def refresh_cart_view(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        items = self.cart.view_cart()
         if not items:
             tk.Label(self, text="Your cart is empty").pack(pady=20)
         else:
             for i in items:
-                tk.Label(self, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}").pack()
+                frame = tk.Frame(self)
+                frame.pack(pady=5, fill="x")
+                tk.Label(frame, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}", anchor="w").pack(side="left")
+                tk.Button(frame, text="Remove", command=lambda name=i['name']: self.remove_item(name)).pack(side="right", padx=10)
+
+    def remove_item(self, name):
+        msg = self.cart.remove_item(name)
+        messagebox.showinfo("Cart", msg)
+        self.refresh_cart_view()
 
 
 class CheckoutPopup(tk.Toplevel):
@@ -413,7 +457,7 @@ class CheckoutPopup(tk.Toplevel):
         for item in order_data["items"]:
             tk.Label(
                 self, text=f"{item['name']} x{item['quantity']} = ${item['subtotal']:.2f}"
-                     ).pack()
+                    ).pack()
 
         total = order_data["total_info"]
         tk.Label(self, text=f"Subtotal: ${total['subtotal']:.2f}").pack()
@@ -455,9 +499,9 @@ class CheckoutPopup(tk.Toplevel):
         if result["success"]:
             messagebox.showinfo(
                 "Order Confirmed",
-                f"Order ID: {result['order_id']}\nEstimatedDelivery: {
-                    result['estimated_delivery']}"
-                )
+                f"""Order ID: {result['order_id']}
+                Estimated Delivery: {result['estimated_delivery']}"""
+    )
             self.destroy()
         else:
             messagebox.showerror("Error", result["message"])

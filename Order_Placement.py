@@ -85,15 +85,18 @@ class Cart:
     def remove_item(self, name):
         """
         Removes an item from the cart by its name.
-        
+
         Args:
             name (str): Name of the item to be removed.
-        
+
         Returns:
-            str: A message indicating the item was removed.
+            str: A message indicating whether the item was removed or not found.
         """
-        self.items = [item for item in self.items if item.name != name]
-        return f"Removed {name} from cart"
+        for item in self.items:
+            if item.name == name:
+                self.items.remove(item)
+                return f"Removed {name} from cart"
+        return "Item not found in cart"
 
     def update_item_quantity(self, name, new_quantity):
         """
@@ -356,6 +359,34 @@ class TestOrderPlacement(unittest.TestCase):
             self.assertFalse(result["success"])
             self.assertEqual(result["message"], "Payment failed")
 
+class TestCartRemoveItem(unittest.TestCase):
+    """
+    Unit tests for removing items from the Cart.
+    """
+
+    def setUp(self):
+        self.cart = Cart()
+
+    def test_remove_existing_item(self):
+        """
+        Test removing an item that exists in the cart.
+        """
+        self.cart.add_item("Pizza", 10.0, 2)
+        self.cart.add_item("Burger", 8.0, 1)
+
+        result = self.cart.remove_item("Burger")
+        self.assertEqual(result, "Removed Burger from cart")
+        self.assertEqual(len(self.cart.items), 1)
+        self.assertEqual(self.cart.items[0].name, "Pizza")
+
+    def test_remove_nonexistent_item(self):
+        """
+        Test trying to remove an item that does not exist in the cart.
+        """
+        self.cart.add_item("Pizza", 10.0, 1)
+        result = self.cart.remove_item("Salad")
+        self.assertEqual(result, "Item not found in cart")
+        self.assertEqual(len(self.cart.items), 1)
 
 if __name__ == "__main__":
     unittest.main()
