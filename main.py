@@ -467,6 +467,8 @@ class CartViewPopup(tk.Toplevel):
         self.refresh_cart_view()
 
     def refresh_cart_view(self):
+        """ cart view refresh """
+
         for widget in self.winfo_children():
             widget.destroy()
 
@@ -478,13 +480,17 @@ class CartViewPopup(tk.Toplevel):
                 frame = tk.Frame(self)
                 frame.pack(pady=5, fill="x")
                 tk.Label(
-                    frame, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}", anchor="w").pack(
-                        side="left")
+                    frame,
+                    text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}",
+                    anchor="w").pack(side="left")
                 tk.Button(
-                    frame, text="Remove", command=lambda name=i['name']: self.remove_item(name)).pack(
+                    frame,
+                    text="Remove",
+                    command=lambda name=i['name']: self.remove_item(name)).pack(
                         side="right", padx=10)
 
     def remove_item(self, name):
+        """ remove item from cart """
         msg = self.cart.remove_item(name)
         messagebox.showinfo("Cart", msg)
         self.refresh_cart_view()
