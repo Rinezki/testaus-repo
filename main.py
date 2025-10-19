@@ -16,6 +16,7 @@ from User_Registration import UserRegistration
 from Order_Placement import Cart, OrderPlacement, UserProfile, RestaurantMenu, PaymentMethod
 from Restaurant_Browsing import RestaurantDatabase, RestaurantBrowsing
 from item_price import Price
+from favourites import Favourites
 
 # Utility functions for user data storage
 USERS_FILE = "users.json"
@@ -48,7 +49,7 @@ class Application(tk.Tk):
         """
         super().__init__()
         self.title("Mobile Food Delivery App")
-        self.geometry("600x400")
+        self.geometry("800x600")
 
         # Load user registration data from file
         self.user_data = load_users()
@@ -257,6 +258,8 @@ class MainAppFrame(tk.Frame):
         self.browsing = master.browsing
 
         self.order_data = OrderData()
+        # Favourite
+        self.favourites = Favourites()
 
         # Search Frame
         search_frame = tk.Frame(self)
@@ -270,6 +273,7 @@ class MainAppFrame(tk.Frame):
         self.results_tree = ttk.Treeview(
             self, columns=("cuisine", "location", "rating"), show="headings"
             )
+
         self.results_tree.heading("cuisine", text="Cuisine")
         self.results_tree.heading("location", text="Location")
         self.results_tree.heading("rating", text="Rating")
@@ -286,6 +290,20 @@ class MainAppFrame(tk.Frame):
             ).pack(side="left", padx=5)
         tk.Button(action_frame, text="View Cart", command=self.view_cart).pack(side="left", padx=5)
         tk.Button(action_frame, text="Checkout", command=self.checkout).pack(side="left", padx=5)
+
+        # Favourite buttons and label
+        fav_frame = tk.Frame(self)
+        fav_frame.pack(pady=10)
+
+        self.fav_label = tk.Label(fav_frame, text="", font=("Arial", 8))
+        self.fav_label.pack(side="left",padx=5)
+
+        tk.Button(
+            fav_frame, text="Add favourite", command=self.add_fav).pack(
+                side="left",padx=5)
+        tk.Button(
+            fav_frame, text="Remove favourite", command=self.remove_fav).pack(
+                side="left",padx=5)
 
     def search_restaurants(self):
         """
@@ -336,6 +354,36 @@ class MainAppFrame(tk.Frame):
         # Show Checkout Popup
         checkout_popup = CheckoutPopup(self, self.order_data.order_placement)
         self.wait_window(checkout_popup)
+
+    def add_fav(self):
+        """
+        adds favourite to favourites
+        """
+        # Check that one restaurant is chosen from results tree
+        favselected = self.results_tree.focus()
+
+        if not favselected:
+            messagebox.showerror("Error", "Please select a restaurant first")
+            return
+
+        # Name of the restaurant, first column from results tree
+        restaurant_name = self.results_tree.item(favselected, "values")[0]
+        self.favourites.add_favourite(restaurant_name)
+        self.update_fav_label()
+
+    def remove_fav(self):
+        """
+        removes fav from favourite
+        """
+        self.favourites.remove_favourite()
+        self.update_fav_label()
+
+    def update_fav_label(self):
+        """
+        shows current favourite
+        """
+        currentfav = self.favourites.get_favourite()
+        self.fav_label.config(text=f"Favourite cuisine: {currentfav}" if currentfav else "")
 
 
 class AddItemPopup(tk.Toplevel):
@@ -429,8 +477,12 @@ class CartViewPopup(tk.Toplevel):
             for i in items:
                 frame = tk.Frame(self)
                 frame.pack(pady=5, fill="x")
-                tk.Label(frame, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}", anchor="w").pack(side="left")
-                tk.Button(frame, text="Remove", command=lambda name=i['name']: self.remove_item(name)).pack(side="right", padx=10)
+                tk.Label(
+                    frame, text=f"{i['name']} x{i['quantity']} = ${i['subtotal']:.2f}", anchor="w").pack(
+                        side="left")
+                tk.Button(
+                    frame, text="Remove", command=lambda name=i['name']: self.remove_item(name)).pack(
+                        side="right", padx=10)
 
     def remove_item(self, name):
         msg = self.cart.remove_item(name)
