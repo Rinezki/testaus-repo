@@ -9,11 +9,13 @@ This is report of assignment 2.2 Practucal Unit Testing Frameworks, Mocking, Stu
 ---
 
 ### Mocking
-#### Screenshots:
+#### Screenshots:![mocking screenshot](mocktestresults.png)
 
 #### Summary:
+Mock test checks that order placement handles correctly orders, unavailable items, and payment failures using mocked objects.
 
 #### Reflections:
+Making the tests helped me to better understand how to isolate components by using mocks. Mocking is a neat way to test logic without relying on real implementations.
 
 ---
 ---
