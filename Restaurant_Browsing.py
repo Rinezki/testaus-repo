@@ -3,6 +3,8 @@ Module handles restaurants browsing functionalities
 """
 # Unit tests for RestaurantBrowsing class
 import unittest
+from restaurant_db_stub import StubRestaurantDB
+
 class RestaurantBrowsing:
     """
     A class for browsing restaurants in a database based on
@@ -21,6 +23,23 @@ class RestaurantBrowsing:
         """
         self.database = database
 
+    def valid_database(self):
+        """ validate that database has required keys with proper values """
+
+        required = {"name", "cuisine", "location", "rating"}
+
+        for restaurant in self.database.get_restaurants():
+            # Has to have all keys
+            if not required.issubset(restaurant.keys()):
+                return False
+
+            # Rating cannot be neg number
+            rating = restaurant.get("rating")
+            if not isinstance(rating, (int, float)) or rating < 0:
+                return False
+
+        return True
+
     def search_by_cuisine(self, cuisine_type):
         """
         Search for restaurants based on their cuisine type.
@@ -30,7 +49,12 @@ class RestaurantBrowsing:
         
         Returns:
             list: A list of restaurants that match the given cuisine type.
+
+        upd. Validates whether db data is correct
         """
+        if not self.valid_database():
+            return {"Status": "db failure", "description": "invalid restaurant data"}
+
         return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['cuisine'].lower() == cuisine_type.lower()]
 
@@ -43,7 +67,12 @@ class RestaurantBrowsing:
         
         Returns:
             list: A list of restaurants that are located in the specified area.
+
+        upd. Validates whether db data is correct
         """
+        if not self.valid_database():
+            return {"Status": "db failure", "description": "invalid restaurant data"}
+
         return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['location'].lower() == location.lower()]
 
@@ -57,7 +86,12 @@ class RestaurantBrowsing:
         Returns:
             list: A list of restaurants that have a rating greater than
             or equal to the specified rating.
+
+        upd. Validates whether db data is correct
         """
+        if not self.valid_database():
+            return {"Status": "db failure", "description": "invalid restaurant data"}
+
         return [restaurant for restaurant in self.database.get_restaurants()
                 if restaurant['rating'] >= min_rating]
 
@@ -72,8 +106,13 @@ class RestaurantBrowsing:
         
         Returns:
             list: A list of restaurants that match all specified filters.
+        
+        upd. Validates whether db data is correct
         """
-        results = self.database.get_restaurants()  # Start with all restaurants
+        if not self.valid_database():
+            return {"Status": "db failure", "description": "invalid restaurant data"}
+
+        results = self.database.get_restaurants() # init to prevent unbound error
 
         if cuisine_type:
             results = [restaurant for restaurant in results
@@ -127,43 +166,6 @@ class RestaurantDatabase: # pylint: disable=too-few-public-methods
         return self.restaurants
 
 
-class RestaurantSearch: # pylint: disable=too-few-public-methods
-    """
-    A class that interfaces with RestaurantBrowsing to perform restaurant searches
-    based on user input.
-    
-    Attributes:
-        browsing (RestaurantBrowsing): An instance of RestaurantBrowsing used to perform searches.
-    """
-
-    def __init__(self, browsing):
-        """
-        Initialize the RestaurantSearch with a reference to a RestaurantBrowsing instance.
-        
-        Args:
-            browsing (RestaurantBrowsing): An instance of the RestaurantBrowsing class.
-        """
-        self.browsing = browsing
-
-    def search_restaurants(self, cuisine=None, location=None, rating=None):
-        """
-        Search for restaurants using multiple optional filters: cuisine, location, and rating.
-        
-        Args:
-            cuisine (str, optional): The type of cuisine to filter by.
-            location (str, optional): The location to filter by.
-            rating (float, optional): The minimum rating to filter by.
-        
-        Returns:
-            list: A list of restaurants that match the provided search criteria.
-        """
-        results = self.browsing.search_by_filters(
-            cuisine_type=cuisine,
-            location=location,
-            min_rating=rating)
-        return results
-
-
 class TestRestaurantBrowsing(unittest.TestCase):
     """
     Unit tests for the RestaurantBrowsing class, testing various search functionalities.
@@ -172,62 +174,113 @@ class TestRestaurantBrowsing(unittest.TestCase):
     def setUp(self):
         """
         Set up the test case by initializing a RestaurantDatabase and RestaurantBrowsing instance.
+
+        upd. correct and incorrect db for db query tests
         """
-        self.database = RestaurantDatabase()
-        self.browsing = RestaurantBrowsing(self.database)
+        self.database = [
+            ("correct", RestaurantDatabase()),
+            ("incorrect", StubRestaurantDB())
+        ]
+
+        # self.database = RestaurantDatabase()
+        # self.browsing = RestaurantBrowsing(self.database)
+
+    def run_with_both_dbs(self, test_function):
+        """ 
+        Helper function to run tests with correct and incorrect dbs
+        """
+        for db_label, db in self.database:
+            with self.subTest(db=db_label):
+                browsing = RestaurantBrowsing(db)
+                test_function(browsing, db_label)
 
     def test_search_by_cuisine(self):
         """
         Test searching for restaurants by cuisine type.
+
+        upd. if else for testing correct and incorrect db
         """
-        results = self.browsing.search_by_cuisine("Italian")
-        self.assertEqual(len(results), 2)  # There should be 2 Italian restaurants
-        self.assertTrue(
-            all(
-                restaurant['cuisine'] == "Italian" for restaurant in results
-                )
-        )  # Check if all returned restaurants are Italian
+        def test_both(browsing, db_label):
+            results = browsing.search_by_cuisine("Italian")
+
+            if db_label == "correct":
+                self.assertEqual(len(results), 2)  # There should be 2 Italian restaurants
+                self.assertTrue(
+                all(
+                    restaurant['cuisine'] == "Italian" for restaurant in results
+                    )
+                )  # Check if all returned restaurants are Italian
+            else:
+                self.assertEqual(results["Status"], "db failure") # db data is wrong
+
+        self.run_with_both_dbs(test_both)
 
     def test_search_by_location(self):
         """
         Test searching for restaurants by location.
+
+        upd. if else for testing correct and incorrect db
         """
-        results = self.browsing.search_by_location("Downtown")
-        self.assertEqual(len(results), 2)  # There should be 2 restaurants located Downtown
-        self.assertTrue(
-            all(
-                restaurant['location'] == "Downtown" for restaurant in results
-            )
-        )  # Check if all returned restaurants are in Downtown
+        def test_both(browsing, db_label):
+            results = browsing.search_by_location("Downtown")
+
+            if db_label == "correct":
+                self.assertEqual(len(results), 2)  # There should be 2 restaurants located Downtown
+                self.assertTrue(
+                    all(
+                       restaurant['location'] == "Downtown" for restaurant in results
+                    )
+                    )  # Check if all returned restaurants are in Downtown
+            else:
+                self.assertEqual(results["Status"], "db failure") # db data is wrong
+
+        self.run_with_both_dbs(test_both)
 
     def test_search_by_rating(self):
         """
         Test searching for restaurants by minimum rating.
+        
+        upd. if else for testing correct and incorrect db
         """
-        results = self.browsing.search_by_rating(4.0)
-        self.assertEqual(len(results), 4)  # There should be 4 restaurants with a rating >= 4.0
-        self.assertTrue(
-            all(
-                restaurant['rating'] >= 4.0 for restaurant in results
-            )
-        )  # Check if all returned restaurants have a rating >= 4.0
+        def test_both(browsing, db_label):
+            results = browsing.search_by_rating(4.0)
+
+            if db_label == "correct":
+                self.assertEqual(len(results), 4)  # should be 4 restaurants with a rating >= 4.0
+                self.assertTrue(
+                    all(
+                        restaurant['rating'] >= 4.0 for restaurant in results
+                    )
+                )  # Check if all returned restaurants have a rating >= 4.0
+            else:
+                self.assertEqual(results["Status"], "db failure") # db data is wrong
+
+        self.run_with_both_dbs(test_both)
 
     def test_search_by_filters(self):
         """
         Test searching for restaurants by multiple filters
         (cuisine type, location, and minimum rating).
+        
+        upd. if else for testing correct and incorrect db
         """
-        results = self.browsing.search_by_filters(
-            cuisine_type="Italian",
-            location="Downtown",
-            min_rating=4.0
-        )
-        self.assertEqual(len(results), 1)  # Only one restaurant should match all the filters
-        self.assertEqual(
-            results[0]['name'],
-            "Italian Bistro"
-        )  # The result should be "Italian Bistro"
+        def test_both(browsing, db_label):
+            results = browsing.search_by_filters(
+                cuisine_type="Italian",
+                location="Downtown",
+                min_rating=4.0
+                )
 
+            if db_label == "correct":
+                self.assertEqual(len(results), 1)  # Only one restaurant should match
+                self.assertEqual(
+                results[0]['name'],
+                "Italian Bistro"
+            )  # The result should be "Italian Bistro"
+            else:
+                self.assertEqual(results["Status"], "db failure") # db data is wrong
+
+        self.run_with_both_dbs(test_both)
 
 if __name__ == '__main__':
     unittest.main()
