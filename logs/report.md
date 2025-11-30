@@ -21,12 +21,25 @@ Making the tests helped me to better understand how to isolate components by usi
 ---
 
 ### Stubbing
+Database with incorrect data to check functions behaviour if db query/data is incorrect.
+
 #### Screenshots:
+![alt text](../notes/restaurant_browsing_coverage/improvements_and_results/last_coverage_report_restaurant_browsing.png)
+
+![alt text](../notes/restaurant_browsing_coverage/improvements_and_results/last_coverage_run_restaurant_browsing.png)
 
 #### Summary:
+- Database with incorrect data at restaurant_stub_db.py
+- Every existing test enhanced to test search with correct and incorrect db data
+    - Helper function run_with_both_dbs to iterate each test with the provided dbs
+- Improved functions in restaurant_browsing.py to catch if db data is not valid with another helper function valid_database
+    - Check whether db data provided responds with the expected data
+    - Catch neg numbers and other incorrect or missing data
+    - Handle incorrect data properly calling valid_database on each search function
+
 
 #### Reflections:
-
+Stubs has a great place and purpose for this kind of usage. Generate false data on purpose and improve the code and tests to handle the scenarios properly.
 ---
 ---
 
