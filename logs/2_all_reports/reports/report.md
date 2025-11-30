@@ -9,7 +9,7 @@ This is report of assignment 2.2 Practucal Unit Testing Frameworks, Mocking, Stu
 ---
 
 ### Mocking
-#### Screenshots:![mocking screenshot](mocktestresults.png)
+#### Screenshots:![alt text](../pic/mocktestresults.png)
 
 #### Summary:
 Mock test checks that order placement handles correctly orders, unavailable items, and payment failures using mocked objects.
@@ -24,9 +24,8 @@ Making the tests helped me to better understand how to isolate components by usi
 Database with incorrect data to check functions behaviour if db query/data is incorrect.
 
 #### Screenshots:
-![alt text](../notes/restaurant_browsing_coverage/improvements_and_results/last_coverage_report_restaurant_browsing.png)
-
-![alt text](../notes/restaurant_browsing_coverage/improvements_and_results/last_coverage_run_restaurant_browsing.png)
+![alt text](../pic/last_coverage_report_restaurant_browsing.png)
+![alt text](../pic/last_coverage_run_restaurant_browsing.png)
 
 #### Summary:
 - Database with incorrect data at restaurant_stub_db.py
@@ -45,7 +44,7 @@ Stubs has a great place and purpose for this kind of usage. Generate false data 
 
 ### Fakes
 #### Screenshots:
-![item price fake unittest](./item_price/item_price_fake_unittest.png)
+![alt text](../pic/item_price_fake_unittest.png)
 
 #### Summary:
 Fake testing for "item_price" is written in different file "item_price_fake". It's functions is same as item_price, but it makes its own file for testing.
