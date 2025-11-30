@@ -19,7 +19,7 @@ ___
 
 ## Pylint outcome at beginning:
 
-![pylint_terminal_start](pic/PyLint_Start.png)
+![pylint_terminal_start](../pic/PyLint_Start.png)
 
 ___
 
@@ -45,6 +45,6 @@ ___
 ___
 ## Pylint outcome after fixes:
 
-![pylint_terminal_end](pic/PyLint_End.png)
+![pylint_terminal_end](../pic/PyLint_End.png)
 
 ___
