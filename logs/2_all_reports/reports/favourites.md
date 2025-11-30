@@ -8,19 +8,19 @@
 
 ### Tests written (red phase):
 
-![Tests](img/tests.png)
+![Tests](../pic/tests.png)
 
 ### Implementation of the new feature as stand alone (green phase):
 
 favourites.py:
 
-![Feature](img/feature.png)
+![Feature](../pic/feature.png)
 
 tests:
 
-![Feature test pylint](img/pylint_test.png)
+![Feature test pylint](../pic/pylint_test.png)
 
-![Feature test pytest](img/pytest.png)
+![Feature test pytest](../pic/pytest.png)
 
 ### Integrating the feature into the app
 
@@ -28,13 +28,13 @@ main.py:
 
 (buttons and methods for the feature)
 
-![UI buttons](img/buttons.png)
+![UI buttons](../pic/buttons.png)
 
-![UI button functions](img/buttonfunctions.png)
+![UI button functions](../pic/buttonfunctions.png)
 
 integration tests
 
-![Integration tests pylint](img/main_pylint.png)
+![Integration tests pylint](../pic/main_pylint.png)
 
 # Summary
 
