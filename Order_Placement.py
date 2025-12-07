@@ -72,6 +72,9 @@ class Cart:
         Returns:
             str: A message indicating whether the item was added or updated.
         """
+        if quantity < 0:
+            return "Quantity must be positive number, please try again."
+        
         for item in self.items:
             if item.name == name:
                 # If the item is already in the cart, update its quantity.
@@ -358,6 +361,40 @@ class TestOrderPlacement(unittest.TestCase):
             result = self.order.confirm_order(payment_method)
             self.assertFalse(result["success"])
             self.assertEqual(result["message"], "Payment failed")
+
+    def test_item_quantity_input(self):
+        """
+        Test case for correct handling of negative integers
+        """
+        # Init cart by one pizza as example
+        self.cart.add_item("Pizza", 12.99, 2)
+
+        # Try to add -5 pcs of pizza
+        self.cart.add_item("Pizza", 10, -5)
+
+        tempCart = self.cart.view_cart()
+
+        result = next(item for item in tempCart if item["name"] == "Pizza")
+
+        self.assertEqual(result["quantity"], 2)
+        self.assertEqual(result["subtotal"], 2 * 12.99)
+
+    def test_item_quantity_feedback(self):
+        """
+        Non functional test case for usability, prevent user confusion
+        """
+        # Add Burgers to cart
+        self.cart.add_item("Burger", 8.95, 5)
+
+        # Add -2 pcs of burgers to cart
+        result = self.cart.add_item("Burger", 8.95, -2)
+
+        self.assertEqual(result, "Quantity must be positive number, please try again.")
+
+
+
+
+
 
 class TestCartRemoveItem(unittest.TestCase):
     """
