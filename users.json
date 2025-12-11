@@ -10,5 +10,13 @@
     "user@test.com": {
         "password": "password1",
         "confirmed": false
+    },
+    "testing@gmail.com": {
+        "password": "skV88lem!",
+        "confirmed": false
+    },
+    "askd\u00e4alsdk\u00e4@gmail.com": {
+        "password": "SSGb47DMG!",
+        "confirmed": false
     }
 }
